@@ -8,8 +8,9 @@
 * @attention    COPYRIGHT LDROBOT
 **/
 
-#ifndef __LIPKG_H
-#define __LIPKG_H
+#ifndef LD19_LIDAR_LIPKG
+#define LD19_LIDAR_LIPKG
+
 #include <stdint.h>
 #include <vector>
 #include <array>
@@ -53,19 +54,19 @@ struct PointData
   double y;
   PointData(float angle, uint16_t distance, uint8_t confidence, double x = 0, double y = 0)
   {
-	this->angle = angle;
-	this->distance = distance;
-	this->confidence = confidence;
-	this->x = x;
-	this->y = y;
+    this->angle = angle;
+    this->distance = distance;
+    this->confidence = confidence;
+    this->x = x;
+    this->y = y;
   }
   PointData()
   {
   }
   friend std::ostream& operator<<(std::ostream& os, const PointData& data)
   {
-	os << data.angle << " " << data.distance << " " << (int)data.confidence << " " << data.x << " " << data.y;
-	return os;
+    os << data.angle << " " << data.distance << " " << (int)data.confidence << " " << data.x << " " << data.y;
+    return os;
   }
 };
 
@@ -76,30 +77,30 @@ public:
   double GetSpeed(void); /*Lidar spin speed (Hz)*/
   uint16_t GetTimestamp(void)
   {
-	return mTimestamp;
+    return mTimestamp;
   } /*time stamp of the packet */
   bool IsPkgReady(void)
   {
-	return mIsPkgReady;
+    return mIsPkgReady;
   } /*a packet is ready */
   bool IsFrameReady(void)
   {
-	return mFrameReady;
+    return mFrameReady;
   } /*Lidar data frame is ready*/
   void ResetFrameReady(void)
   {
-	mFrameReady = false;
+    mFrameReady = false;
   }
   long GetErrorTimes(void)
   {
-	return mErrorTimes;
+    return mErrorTimes;
   } /*the number of errors in parser process of lidar data frame*/
   const std::array<PointData, POINT_PER_PACK>& GetPkgData(void); /*original data package*/
-  bool Parse(const uint8_t* data, long len);					 /*parse single packet*/
+  bool Parse(const uint8_t* data, long len);                     /*parse single packet*/
   bool AssemblePacket(); /*combine stantard data into data frames and calibrate*/
   void SetPopulateCallback(std::function<void(const std::vector<PointData>& laser_data)> callback)
   {
-	mPopulateCallback = callback;
+    mPopulateCallback = callback;
   }
 
 private:
@@ -114,5 +115,5 @@ private:
   void ToLaserscan(std::vector<PointData> src);
   std::function<void(const std::vector<PointData>& laser_data)> mPopulateCallback;
 };
-#endif
 /********************* (C) COPYRIGHT LD Robot *******END OF FILE ********/
+#endif /* LD19_LIDAR_LIPKG */

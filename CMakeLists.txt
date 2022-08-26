@@ -11,6 +11,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+find_package(Boost 1.40.0 REQUIRED)
+find_package(Threads REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
@@ -19,9 +21,10 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 include_directories(include/${PROJECT_NAME})
+include_directories(${Boost_INCLUDE_DIR})
 
 set(SOURCE_FILES
-  src/cmd_interface_linux.cpp
+  src/async_serial.cpp
   src/ld19_node.cpp
   src/lipkg.cpp
   src/tofbf.cpp
@@ -29,7 +32,11 @@ set(SOURCE_FILES
 )
 
 add_executable(ld19_node ${SOURCE_FILES})
-target_link_libraries(ld19_node udev)
+
+target_link_libraries(ld19_node
+  ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+)
 ament_target_dependencies(ld19_node rclcpp sensor_msgs)
 
 if(BUILD_TESTING)
