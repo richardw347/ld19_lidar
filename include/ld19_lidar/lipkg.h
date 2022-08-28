@@ -79,10 +79,6 @@ public:
   {
     return mTimestamp;
   } /*time stamp of the packet */
-  bool IsPkgReady(void)
-  {
-    return mIsPkgReady;
-  } /*a packet is ready */
   bool IsFrameReady(void)
   {
     return mFrameReady;
@@ -94,10 +90,9 @@ public:
   long GetErrorTimes(void)
   {
     return mErrorTimes;
-  } /*the number of errors in parser process of lidar data frame*/
-  const std::array<PointData, POINT_PER_PACK>& GetPkgData(void); /*original data package*/
-  bool Parse(const uint8_t* data, long len);                     /*parse single packet*/
-  bool AssemblePacket(); /*combine stantard data into data frames and calibrate*/
+  }                                          /*the number of errors in parser process of lidar data frame*/
+  bool Parse(const uint8_t* data, long len); /*parse single packet*/
+  bool AssemblePacket();                     /*combine stantard data into data frames and calibrate*/
   void SetPopulateCallback(std::function<void(const std::vector<PointData>& laser_data)> callback)
   {
     mPopulateCallback = callback;
@@ -112,7 +107,6 @@ private:
   std::vector<PointData> mFrameTmp;
   bool mIsPkgReady;
   bool mFrameReady;
-  void ToLaserscan(std::vector<PointData> src);
   std::function<void(const std::vector<PointData>& laser_data)> mPopulateCallback;
 };
 /********************* (C) COPYRIGHT LD Robot *******END OF FILE ********/
