@@ -8,10 +8,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checking out
-        uses: actions/checkout@v3.0.2
-      - name: Building and testing
-        uses: ichiro-its/ros2-ci@v1.0.0
-        with:
-          ros2-distro: galactic
-          apt-packages: libboost-dev
+    - uses: ros-tooling/setup-ros@v0.3
+      with:
+        required-ros-distributions: galactic
+    - uses: ros-tooling/action-ros-ci@v0.2
+      with:
+        package-name: ld19_lidar
+        target-ros2-distro: galactic
