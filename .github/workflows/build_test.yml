@@ -1,17 +1,24 @@
-name: Build and Test
+name: LD19 Build
 on:
   pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
+    branches:
+      - master
 jobs:
   build-and-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: ros-tooling/setup-ros@v0.3
+    - name: Setup ROS 2
+      uses: ros-tooling/setup-ros@0.0.15
       with:
-        required-ros-distributions: galactic
-    - uses: ros-tooling/action-ros-ci@v0.2
+        required-ros-distributions: rolling
+    - name: Run Tests
+      uses: ros-tooling/action-ros-ci@0.0.13
       with:
         package-name: ld19_lidar
-        target-ros2-distro: galactic
+    - name: Upload Logs
+      uses: actions/upload-artifact@v1
+      with:
+        name: colcon-logs
+        path: ros_ws/log
+      if: always()
