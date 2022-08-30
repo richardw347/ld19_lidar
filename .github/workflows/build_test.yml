@@ -1,24 +1,33 @@
-name: LD19 Build
-on:
-  pull_request:
+name: rolling
+
+on: 
   push:
-    branches:
-      - main
+    branches: [ main ] 
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: 
+
 jobs:
-  build-and-test:
+  industrial_ci:
+    name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ROS_DISTRO: [rolling]
+        ROS_REPO: [testing]
+    env:
+      CCACHE_DIR: "${{ github.workspace }}/.ccache"
     steps:
-    - name: Setup ROS 2
-      uses: ros-tooling/setup-ros@0.0.15
-      with:
-        required-ros-distributions: rolling
-    - name: Run Tests
-      uses: ros-tooling/action-ros-ci@0.0.13
-      with:
-        package-name: ld19_lidar
-    - name: Upload Logs
-      uses: actions/upload-artifact@v1
-      with:
-        name: colcon-logs
-        path: ros_ws/log
-      if: always()
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{github.run_id}}
+          restore-keys: |
+            ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
+      - uses: 'ros-industrial/industrial_ci@master'
+        env:
+          BEFORE_INSTALL_TARGET_DEPENDENCIES: 'sudo apt-get update'
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+          ROS_REPO: ${{ matrix.ROS_REPO }}
