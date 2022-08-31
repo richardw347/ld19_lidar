@@ -16,10 +16,10 @@ private:
 
 public:
   Tofbf() = delete;
-  Tofbf(const Tofbf&) = delete;
-  Tofbf& operator=(const Tofbf&) = delete;
+  Tofbf(const Tofbf &) = delete;
+  Tofbf & operator = (const Tofbf &) = delete;
   Tofbf(int speed);
-  std::vector<PointData> NearFilter(const std::vector<PointData>& tmp) const;
+  std::vector < PointData > NearFilter(const std::vector < PointData > &tmp) const;
   ~Tofbf();
 };
 

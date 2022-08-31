@@ -17,8 +17,8 @@
 #include <iostream>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
-#define ANGLE_TO_RADIAN(angle) ((angle)*3141.59 / 180000)
-#define RADIAN_TO_ANGLE(angle) ((angle)*180000 / 3141.59)
+#define ANGLE_TO_RADIAN(angle) ((angle) * 3141.59 / 180000)
+#define RADIAN_TO_ANGLE(angle) ((angle) * 180000 / 3141.59)
 
 enum
 {
@@ -63,11 +63,12 @@ struct PointData
   PointData()
   {
   }
-  friend std::ostream& operator<<(std::ostream& os, const PointData& data)
-  {
-    os << data.angle << " " << data.distance << " " << (int)data.confidence << " " << data.x << " " << data.y;
-    return os;
-  }
+  friend std::ostream & operator << (std::ostream & os, const PointData & data)
+      {
+      os << data.angle << " " << data.distance << " " << (int)data.confidence << " " << data.x <<
+      " " << data.y;
+      return os;
+    }
 };
 
 class LiPkg
@@ -95,9 +96,10 @@ public:
   {
     return mErrorTimes;
   }                                          /*the number of errors in parser process of lidar data frame*/
-  bool Parse(const uint8_t* data, long len); /*parse single packet*/
+  bool Parse(const uint8_t * data, long len); /*parse single packet*/
   bool AssemblePacket();                     /*combine stantard data into data frames and calibrate*/
-  void SetPopulateCallback(std::function<void(const std::vector<PointData>& laser_data)> callback)
+  void SetPopulateCallback(
+    std::function < void(const std::vector < PointData > &laser_data) > callback)
   {
     mPopulateCallback = callback;
   }
@@ -105,12 +107,12 @@ public:
 private:
   uint16_t mTimestamp;
   double mSpeed;
-  std::vector<uint8_t> mDataTmp;
+  std::vector < uint8_t > mDataTmp;
   long mErrorTimes;
-  std::array<PointData, POINT_PER_PACK> mOnePkg;
-  std::vector<PointData> mFrameTmp;
+  std::array < PointData, POINT_PER_PACK > mOnePkg;
+  std::vector < PointData > mFrameTmp;
   bool mFrameReady;
-  std::function<void(const std::vector<PointData>& laser_data)> mPopulateCallback;
+  std::function < void(const std::vector < PointData > &laser_data) > mPopulateCallback;
 };
 /********************* (C) COPYRIGHT LD Robot *******END OF FILE ********/
 #endif /* LD19_LIDAR_LIPKG */

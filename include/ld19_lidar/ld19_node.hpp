@@ -25,25 +25,22 @@ class LD19Node : public rclcpp::Node
 {
 public:
   LD19Node();
-  auto populate_message(const std::vector<PointData>& laser_data) -> void;
-  auto init_device() -> bool;
-  auto timer_callback() -> void;
-  auto init_parameters() -> void;
+  auto populate_message(const std::vector<PointData> & laser_data)->void;
+  auto init_device()->bool;
+  auto timer_callback()->void;
+  auto init_parameters()->void;
 
 private:
-  static auto map_range(float x, float in_min, float in_max, float out_min, float out_max) -> float
+  static auto map_range(float x, float in_min, float in_max, float out_min, float out_max)->float
   {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
   }
 
-  static auto wrap_angle(float angle) -> float
+  static auto wrap_angle(float angle)->float
   {
-    if (angle > M_PI)
-    {
+    if (angle > M_PI) {
       angle -= (M_PI * 2);
-    }
-    else if (angle < -M_PI)
-    {
+    } else if (angle < -M_PI) {
       angle += (M_PI * 2);
     }
     return angle;

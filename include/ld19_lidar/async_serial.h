@@ -23,7 +23,7 @@ class AsyncSerialImpl;
  * Asyncronous serial class.
  * Intended to be a base class.
  */
-class AsyncSerial : private boost::noncopyable
+class AsyncSerial: private boost::noncopyable
 {
 public:
   AsyncSerial();
@@ -40,14 +40,16 @@ public:
    * serial device
    */
   AsyncSerial(
-      const std::string& devname, unsigned int baud_rate,
-      boost::asio::serial_port_base::parity opt_parity =
-          boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none),
-      boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(8),
-      boost::asio::serial_port_base::flow_control opt_flow =
-          boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
-      boost::asio::serial_port_base::stop_bits opt_stop =
-          boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
+    const std::string & devname, unsigned int baud_rate,
+    boost::asio::serial_port_base::parity opt_parity =
+    boost::asio::serial_port_base::parity(
+      boost::asio::serial_port_base::parity::none),
+    boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(
+      8),
+    boost::asio::serial_port_base::flow_control opt_flow =
+    boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
+    boost::asio::serial_port_base::stop_bits opt_stop =
+    boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 
   /**
    * Opens a serial device.
@@ -60,14 +62,15 @@ public:
    * \throws boost::system::system_error if cannot open the
    * serial device
    */
-  void open(const std::string& devname, unsigned int baud_rate,
-            boost::asio::serial_port_base::parity opt_parity =
-                boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none),
-            boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(8),
-            boost::asio::serial_port_base::flow_control opt_flow =
-                boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
-            boost::asio::serial_port_base::stop_bits opt_stop =
-                boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
+  void open(
+    const std::string & devname, unsigned int baud_rate,
+    boost::asio::serial_port_base::parity opt_parity =
+    boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none),
+    boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(8),
+    boost::asio::serial_port_base::flow_control opt_flow =
+    boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
+    boost::asio::serial_port_base::stop_bits opt_stop =
+    boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 
   /**
    * \return true if serial device is open
@@ -90,13 +93,13 @@ public:
    * \param data array of char to be sent through the serial device
    * \param size array size
    */
-  void write(const char* data, size_t size);
+  void write(const char * data, size_t size);
 
   /**
    * Write data asynchronously. Returns immediately.
    * \param data to be sent through the serial device
    */
-  void write(const std::vector<char>& data);
+  void write(const std::vector < char > & data);
 
   /**
    * Write a string asynchronously. Returns immediately.
@@ -104,7 +107,7 @@ public:
    * To send binary data, use write()
    * \param s string to send
    */
-  void writeString(const std::string& s);
+  void writeString(const std::string & s);
 
   virtual ~AsyncSerial() = 0;
 
@@ -124,7 +127,7 @@ private:
    * Callback called at the end of the asynchronous operation.
    * This callback is called by the io_context in the spawned thread.
    */
-  void readEnd(const boost::system::error_code& error, size_t bytes_transferred);
+  void readEnd(const boost::system::error_code & error, size_t bytes_transferred);
 
   /**
    * Callback called to start an asynchronous write operation.
@@ -138,14 +141,14 @@ private:
    * if there is more data to write, restarts a new write operation.
    * This callback is called by the io_context in the spawned thread.
    */
-  void writeEnd(const boost::system::error_code& error);
+  void writeEnd(const boost::system::error_code & error);
 
   /**
    * Callback to close serial port
    */
   void doClose();
 
-  std::shared_ptr<AsyncSerialImpl> pimpl;
+  std::shared_ptr < AsyncSerialImpl > pimpl;
 
 protected:
   /**
@@ -157,7 +160,7 @@ protected:
   /**
    * To allow derived classes to set a read callback
    */
-  void setReadCallback(const std::function<void(const char*, size_t)>& callback);
+  void setReadCallback(const std::function < void(const char *, size_t) > & callback);
 
   /**
    * To unregister the read callback in the derived class destructor so it
@@ -172,7 +175,7 @@ protected:
  * from one thread, and read data will be reported through a callback called
  * from a separate thred.
  */
-class CallbackAsyncSerial : public AsyncSerial
+class CallbackAsyncSerial: public AsyncSerial
 {
 public:
   CallbackAsyncSerial();
@@ -189,14 +192,16 @@ public:
    * serial device
    */
   CallbackAsyncSerial(
-      const std::string& devname, unsigned int baud_rate,
-      boost::asio::serial_port_base::parity opt_parity =
-          boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none),
-      boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(8),
-      boost::asio::serial_port_base::flow_control opt_flow =
-          boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
-      boost::asio::serial_port_base::stop_bits opt_stop =
-          boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
+    const std::string & devname, unsigned int baud_rate,
+    boost::asio::serial_port_base::parity opt_parity =
+    boost::asio::serial_port_base::parity(
+      boost::asio::serial_port_base::parity::none),
+    boost::asio::serial_port_base::character_size opt_csize = boost::asio::serial_port_base::character_size(
+      8),
+    boost::asio::serial_port_base::flow_control opt_flow =
+    boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none),
+    boost::asio::serial_port_base::stop_bits opt_stop =
+    boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
 
   /**
    * Set the read callback, the callback will be called from a thread
@@ -204,7 +209,7 @@ public:
    * serial port.
    * \param callback the receive callback
    */
-  void setCallback(const std::function<void(const char*, size_t)>& callback);
+  void setCallback(const std::function < void(const char *, size_t) > & callback);
 
   /**
    * Removes the callback. Any data received after this function call will
