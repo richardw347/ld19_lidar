@@ -29,13 +29,8 @@ static const uint8_t CrcTable[256] = {
   0x5a, 0x06, 0x4b, 0x9c, 0xd1, 0x7f, 0x32, 0xe5, 0xa8
 };
 
-LiPkg::LiPkg() : mTimestamp(0), mSpeed(0), mErrorTimes(0), mFrameReady(false), mIsPkgReady(false)
+LiPkg::LiPkg() : mTimestamp(0), mSpeed(0), mDataTmp{}, mErrorTimes(0), mFrameTmp{}, mFrameReady(false)
 {
-}
-
-double LiPkg::GetSpeed(void)
-{
-  return mSpeed;
 }
 
 bool LiPkg::Parse(const uint8_t* data, long len)
@@ -128,8 +123,6 @@ bool LiPkg::Parse(const uint8_t* data, long len)
         }
         // prevent angle invert
         mOnePkg.back().angle = end;
-
-        mIsPkgReady = true;
       }
 
       for (uint32_t i = 0; i < sizeof(LiDARFrameTypeDef); i++)

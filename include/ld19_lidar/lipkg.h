@@ -74,7 +74,11 @@ class LiPkg
 {
 public:
   LiPkg();
-  double GetSpeed(void); /*Lidar spin speed (Hz)*/
+  /*Lidar spin speed (Hz)*/
+  double GetSpeed(void)
+  {
+    return mSpeed;
+  }
   uint16_t GetTimestamp(void)
   {
     return mTimestamp;
@@ -105,7 +109,6 @@ private:
   long mErrorTimes;
   std::array<PointData, POINT_PER_PACK> mOnePkg;
   std::vector<PointData> mFrameTmp;
-  bool mIsPkgReady;
   bool mFrameReady;
   std::function<void(const std::vector<PointData>& laser_data)> mPopulateCallback;
 };
