@@ -14,6 +14,8 @@ endif()
 find_package(Boost 1.40.0 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
 # find_package(irobot_events_executor REQUIRED)
@@ -37,7 +39,7 @@ target_link_libraries(ld19_node
   ${Boost_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )
-ament_target_dependencies(ld19_node rclcpp sensor_msgs)
+ament_target_dependencies(ld19_node rclcpp rclcpp_lifecycle lifecycle_msgs sensor_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

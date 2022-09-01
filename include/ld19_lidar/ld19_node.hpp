@@ -8,8 +8,14 @@
 
 #include "lipkg.h"
 #include "async_serial.h"
-#include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/laser_scan.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/laser_scan.hpp>
+#include <lifecycle_msgs/msg/transition.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
+#include <rclcpp_lifecycle/lifecycle_publisher.hpp>
+#include <rcutils/logging_macros.h>
+
 #include <boost/system/system_error.hpp>
 
 /*Fixed parameters of the sensor*/
@@ -21,37 +27,42 @@ static const float RANGE_MIN = 0.03;
 static const float RANGE_MAX = 12.0;
 static const uint32_t BAUDRATE = 230400;
 
-class LD19Node : public rclcpp::Node
+class LD19Node : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-  LD19Node();
-  auto populate_message(const std::vector<PointData> & laser_data)->void;
-  auto init_device()->bool;
-  auto timer_callback()->void;
-  auto init_parameters()->void;
+  LD19Node(const std::string& node_name);
+  auto populate_message(const std::vector<PointData>& laser_data) -> void;
+  auto timer_callback() -> void;
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_configure(const rclcpp_lifecycle::State& state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_activate(const rclcpp_lifecycle::State& state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_deactivate(const rclcpp_lifecycle::State& state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_cleanup(const rclcpp_lifecycle::State& state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_shutdown(const rclcpp_lifecycle::State& state);
 
 private:
-  static auto map_range(float x, float in_min, float in_max, float out_min, float out_max)->float
+  static auto map_range(float x, float in_min, float in_max, float out_min, float out_max) -> float
   {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
   }
 
-  static auto wrap_angle(float angle)->float
-  {
-    if (angle > M_PI) {
-      angle -= (M_PI * 2);
-    } else if (angle < -M_PI) {
-      angle += (M_PI * 2);
-    }
-    return angle;
-  }
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_;
   std::shared_ptr<LiPkg> lidar_;
   std::shared_ptr<CallbackAsyncSerial> serial_port_;
+
   std::string port_;
   std::string frame_id_;
   std::string topic_name_;
-  rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_;
   sensor_msgs::msg::LaserScan output_;
 };
 

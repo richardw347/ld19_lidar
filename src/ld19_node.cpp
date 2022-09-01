@@ -2,15 +2,17 @@
 
 using namespace std::chrono_literals;
 
-LD19Node::LD19Node()
-: Node("ld19_node"), port_("/dev/ttyUSB0"), frame_id_("laser"), topic_name_("scan"), output_()
+LD19Node::LD19Node(const std::string& node_name)
+  : rclcpp_lifecycle::LifecycleNode(node_name)
+  , port_("/dev/ttyUSB0")
+  , frame_id_("laser")
+  , topic_name_("scan")
+  , output_()
 {
-  this->init_parameters();
-  publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>(topic_name_, 10);
-  timer_ = this->create_wall_timer(100ms, std::bind(&LD19Node::timer_callback, this));
 }
 
-auto LD19Node::init_parameters()->void
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+LD19Node::on_configure(const rclcpp_lifecycle::State&)
 {
   this->declare_parameter<std::string>("port", "/dev/ttyUSB0");
   this->declare_parameter<std::string>("frame_id", "laser");
@@ -29,46 +31,82 @@ auto LD19Node::init_parameters()->void
   output_.scan_time = 0.0;
   output_.ranges.assign(READING_COUNT, 0.0);
   output_.intensities.assign(READING_COUNT, 0.0);
-}
 
-auto LD19Node::init_device()->bool
-{
   lidar_ = std::make_shared<LiPkg>();
 
-  try {
+  try
+  {
     serial_port_ = std::make_shared<CallbackAsyncSerial>(port_, BAUDRATE);
-  } catch (const boost::system::system_error & e) {
+  }
+  catch (const boost::system::system_error& e)
+  {
     RCLCPP_ERROR(this->get_logger(), "Error opening device port: %s: %s", port_.c_str(), e.what());
-    return false;
+    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
 
-  serial_port_->setCallback(
-    [ = ](const char * byte, size_t len) {
-      if (lidar_->Parse((uint8_t *)byte, len)) {
-        lidar_->AssemblePacket();
-      }
-    });
+  serial_port_->setCallback([=](const char* byte, size_t len) {
+    if (lidar_->Parse((uint8_t*)byte, len))
+    {
+      lidar_->AssemblePacket();
+    }
+  });
 
   lidar_->SetPopulateCallback(std::bind(&LD19Node::populate_message, this, std::placeholders::_1));
 
-  if (!serial_port_->isOpen()) {
+  if (!serial_port_->isOpen())
+  {
     RCLCPP_ERROR(this->get_logger(), "Error opening device port: %s", port_.c_str());
-    return false;
+    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(this->get_logger(), "Successfully opened device port: %s", port_.c_str());
 
-  return true;
+  publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("topic_name_", 10);
+  timer_ = this->create_wall_timer(100ms, std::bind(&LD19Node::timer_callback, this));
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-auto LD19Node::populate_message(const std::vector<PointData> & laser_data)->void
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+LD19Node::on_activate(const rclcpp_lifecycle::State& state)
+{
+  LifecycleNode::on_activate(state);
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+LD19Node::on_deactivate(const rclcpp_lifecycle::State& state)
+{
+  LifecycleNode::on_deactivate(state);
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+LD19Node::on_cleanup(const rclcpp_lifecycle::State& state)
+{
+  LifecycleNode::on_cleanup(state);
+  lidar_.reset();
+  serial_port_.reset();
+  timer_.reset();
+  publisher_.reset();
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+LD19Node::on_shutdown(const rclcpp_lifecycle::State& state)
+{
+  LifecycleNode::on_shutdown(state);
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+auto LD19Node::populate_message(const std::vector<PointData>& laser_data) -> void
 {
   /*Angle resolution, the smaller the resolution, the smaller the error after conversion*/
   float angle_increment = ANGLE_TO_RADIAN(lidar_->GetSpeed() / 4500);
   int max_index = std::ceil((ANGLE_MAX - ANGLE_MIN) / angle_increment);
   output_.header.stamp = this->now();
   output_.angle_increment = angle_increment;
-  for (auto point : laser_data) {
+  for (auto point : laser_data)
+  {
     float range = point.distance / 1000.0;
     float angle = ANGLE_TO_RADIAN(point.angle);
     // reverse the index of the readings
@@ -83,23 +121,30 @@ auto LD19Node::populate_message(const std::vector<PointData> & laser_data)->void
     index += index_offset;
     std::cout << "index_offset: " << index_offset << std::endl;
 
-    if (index > max_index) {
+    if (index > max_index)
+    {
       index -= max_index;
     }
-    if (index < 0) {
+    if (index < 0)
+    {
       index += max_index;
     }
 
     // int index = (int)((angle - output_.angle_min) / output_.angle_increment);
     std::cout << "max index:" << max_index << std::endl;
     std::cout << "deg: " << point.angle << " rads: " << angle << " index: " << index << std::endl;
-    if (index >= 0 && index < max_index) {
+    if (index >= 0 && index < max_index)
+    {
       output_.ranges[index] = range;
       /*If the current content is Nan, it is assigned directly*/
-      if (std::isnan(output_.ranges[index])) {
+      if (std::isnan(output_.ranges[index]))
+      {
         output_.ranges[index] = range;
-      } else { /*Otherwise, only when the distance is less than the current value, it can be re assigned*/
-        if (range < output_.ranges[index]) {
+      }
+      else
+      { /*Otherwise, only when the distance is less than the current value, it can be re assigned*/
+        if (range < output_.ranges[index])
+        {
           output_.ranges[index] = range;
         }
       }
@@ -108,12 +153,14 @@ auto LD19Node::populate_message(const std::vector<PointData> & laser_data)->void
   }
 }
 
-auto LD19Node::timer_callback()->void
+auto LD19Node::timer_callback() -> void
 {
-  if (lidar_->IsFrameReady()) {
-    if (publisher_->get_subscription_count() > 0) {
+  if (publisher_->is_activated())
+  {
+    if (lidar_->IsFrameReady())
+    {
       publisher_->publish(output_);
+      lidar_->ResetFrameReady();
     }
-    lidar_->ResetFrameReady();
   }
 }
