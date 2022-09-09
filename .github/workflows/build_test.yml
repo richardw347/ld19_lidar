@@ -1,11 +1,11 @@
-name: rolling
+name: build_lint
 
-on: 
+on:
   push:
-    branches: [ main ] 
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: 
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   industrial_ci:
@@ -26,8 +26,8 @@ jobs:
           key: ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-${{github.run_id}}
           restore-keys: |
             ccache-${{ matrix.ROS_DISTRO }}-${{ matrix.ROS_REPO }}-
-      - uses: 'ros-industrial/industrial_ci@master'
+      - uses: "ros-industrial/industrial_ci@master"
         env:
-          BEFORE_INSTALL_TARGET_DEPENDENCIES: 'sudo apt-get update'
+          BEFORE_INSTALL_TARGET_DEPENDENCIES: "sudo apt-get update"
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
           ROS_REPO: ${{ matrix.ROS_REPO }}
