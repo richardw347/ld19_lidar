@@ -24,4 +24,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ld19_lidar:latest
+          tags: richardw347/ld19_lidar:latest
