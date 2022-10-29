@@ -1,5 +1,7 @@
 # ROS 2.0 Node for the LD19 LIDAR sensor
 
+![LD19](images/ld19.gif)
+
 This repository contains my ROS 2.0 driver for the LD19 LIDAR sensor. It's quite a compact, low cost lidar sensor with an impressive range of 12 metres. I got the sensor to add to very small robot platforms I've built for experimentaion and learning.
 
 The manufacturer provided a C++ library to parse the data packets from the laser (sadly their is little to no documentation on the packset strucure, I might try and reverse engineer it at some point). That part of the code can be found in  [lipkg.h](.include/ld19_lidar/lipkg.h) and [lipkg.cpp](.include/ld19_lidar/lipkg.cpp).
