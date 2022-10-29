@@ -18,5 +18,6 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     -DSECURITY=ON --no-warn-unused-cli \
     --symlink-install
 
-# ENTRYPOINT ["/opt/ros_entrypoint.sh"]
-CMD ["bash"]
+RUN ["chmod", "+x", "/opt/ros_entrypoint.sh"]
+
+CMD ["/opt/ros_entrypoint.sh"]

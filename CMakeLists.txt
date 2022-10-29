@@ -54,7 +54,10 @@ endif()
 
 install(TARGETS
   ld19_node
-  launch
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()
